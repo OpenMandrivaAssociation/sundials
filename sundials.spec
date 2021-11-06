@@ -2,8 +2,10 @@
 %define	libname		%mklibname %{name} %{major}
 %define	develname	%mklibname %{name} -d
 
-%bcond_without fortran
-%bcond_without pthread
+%bcond_with		cuda
+%bcond_without	fortran
+%bcond_with	lapack
+%bcond_without	pthread
 
 %if %{with pthread}
 %define _disable_ld_no_undefined 1
@@ -23,8 +25,10 @@ BuildRequires:	ninja
 %if %{with fortran}
 BuildRequires:	gcc-gfortran
 %endif
+%if %{with lapack}
 BuildRequires:	blas-devel
 BuildRequires:	lapack-devel
+%endif
 BuildRequires:	libgomp-devel
 BuildRequires:	openmpi-devel
 %ifarch %{ix86} x86_64
@@ -119,13 +123,9 @@ This package contains development files for %{name}.
 %endif
 	-DENABLE_MPI:BOOL=OFF \
 	-DENABLE_OPENMP:BOOL=ON \
-%if %{with pthread}
-	-DENABLE_PTHREAD:BOOL=ON \
-%else
-	-DENABLE_PTHREAD:BOOL=OFF \
-%endif
-	-DENABLE_CUDA:BOOL=OFF \
-	-DENABLE_LAPACK:BOOL=ON \
+	-DENABLE_PTHREAD:BOOL=%{?with_pthread:ON}%{!?with_pthread:OFF} \
+	-DENABLE_CUDA:BOOL=%{?with_cuda:ON}%{!?with_cuda:OFF} \
+	-DENABLE_LAPACK:BOOL=%{?with_lapack:ON}%{!?with_lapack:OFF} \
 	-DENABLE_KLU:BOOL=ON \
 	-DKLU_INCLUDE_DIR:PATH=%{_includedir}/suitesparse \
 	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
