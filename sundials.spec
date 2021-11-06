@@ -3,8 +3,8 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with		cuda
-%bcond_without	fortran
-%bcond_with	lapack
+%bcond_with		fortran
+%bcond_without	lapack
 %bcond_without	pthread
 
 %if %{with pthread}
@@ -22,9 +22,9 @@ Source0:	https://github.com/LLNL/%{name}/releases/download/v%{version}/%{name}-%
 
 BuildRequires:	cmake
 BuildRequires:	ninja
-%if %{with fortran}
+#if %{with fortran}
 BuildRequires:	gcc-gfortran
-%endif
+#endif
 %if %{with lapack}
 BuildRequires:	blas-devel
 BuildRequires:	lapack-devel
@@ -106,8 +106,7 @@ This package contains development files for %{name}.
 #-----------------------------------------------------------------------------
 
 %prep
-%setup -q
-%autopatch -p1
+%%autosetup -p1
 
 #if %{with fortran}
 #export CC=gcc
