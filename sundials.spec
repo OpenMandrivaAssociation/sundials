@@ -106,7 +106,7 @@ This package contains development files for %{name}.
 #-----------------------------------------------------------------------------
 
 %prep
-%%autosetup -p1
+%autosetup -p1
 
 #if %{with fortran}
 #export CC=gcc
