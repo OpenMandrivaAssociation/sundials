@@ -3,7 +3,8 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with		cuda
-%bcond_with		fortran
+%bcond_without
+	fortran
 %bcond_without	lapack
 %bcond_without	pthread
 
