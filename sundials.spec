@@ -2,7 +2,7 @@
 %define	libname		%mklibname %{name} %{major}
 %define	develname	%mklibname %{name} -d
 
-%bcond_with fortran
+%bcond_without fortran
 %bcond_without pthread
 
 %if %{with pthread}
