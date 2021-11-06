@@ -3,7 +3,7 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with fortran
-%bcond_with pthread
+%bcond_without pthread
 
 %if %{with pthread}
 %define _disable_ld_no_undefined 1
@@ -105,29 +105,10 @@ This package contains development files for %{name}.
 %setup -q
 %autopatch -p1
 
-%if %{with fortran}
+#if %{with fortran}
 #export CC=gcc
 #export CXX=g++
-%endif
-
-#cmake \
-#	-DBUILD_STATIC_LIBS:BOOL=OFF \
-#	-DCMAKE_INSTALL_LIBSUFFIX="%{_lib}" \
-#	-DCMAKE_INSTALL_LIBDIR="%{_libdir}" \
-#if %{with fortran}
-#	-DBUILD_FORTRAN77_INTERFACE:BOOL=OFF \
-#	-DBUILD_FORTRAN_MODULE_INTERFACE:BOOL=ON \
-#	-DFortran_INSTALL_MODDIR:PATH=%{fincludedir} \
 #endif
-#	-DENABLE_LAPACK:BOOL=ON \
-#	-DENABLE_KLU:BOOL=ON \
-#	-DKLU_INCLUDE_DIR:PATH=%{_includedir}/suitesparse \
-#	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
-#	-DENABLE_MPI:BOOL=OFF \
-#	-DENABLE_OPENMP:BOOL=ON \
-#	-DEXAMPLES_INSTALL_PATH=%{_datadir}/%{name}/examples \
-#	-G Ninja
-
 
 %cmake \
 	-DBUILD_STATIC_LIBS:BOOL=OFF \
