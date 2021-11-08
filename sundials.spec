@@ -3,7 +3,7 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with		cuda
-%bcond_without	fortran
+%bcond_with	fortran
 %bcond_without	lapack
 %bcond_without	pthread
 
@@ -22,9 +22,7 @@ Source0:	https://github.com/LLNL/%{name}/releases/download/v%{version}/%{name}-%
 
 BuildRequires:	cmake
 BuildRequires:	ninja
-#if %{with fortran}
 BuildRequires:	gcc-gfortran
-#endif
 %if %{with lapack}
 BuildRequires:	blas-devel
 BuildRequires:	lapack-devel
@@ -35,8 +33,6 @@ BuildRequires:	openmpi-devel
 BuildRequires:	quadmath-devel
 %endif
 BuildRequires:	suitesparse-devel
-
-Requires:	%{libname} = %{version}-%{release}
 
 %description
 SUNDIALS is a SUite of Nonlinear and DIfferential/ALgebraic equation
@@ -52,11 +48,6 @@ Solvers. It consists of the following six solvers:
   - IDAS solves DAE systems and includes sensitivity analysis
          capabilities (forward and adjoint); 
   - KINSOL solves nonlinear algebraic systems.
-
-%files
-%doc LICENSE README.md
-#{_docdir}/sundials
-%{_datadir}/%{name}/examples
 
 #-----------------------------------------------------------------------------
 
@@ -95,31 +86,28 @@ Provides:	lib%{name}-devel = %{version}-%{release}
 This package contains development files for %{name}.
 
 %files -n %{develname}
+%license LICENSE
+%doc README.md
 %{_includedir}/*/*.h
+%if %{with fortran}
+%{_includedir}/*.mod
+%endif
 %{_includedir}/%{name}/NOTICE
 %{_libdir}/lib%{name}_*.so
 %{_libdir}/cmake/%{name}/*.cmake
-%if %{with fortran}
-%{fincludedir}/*.mod
-%endif
+%{_datadir}/%{name}/examples
 
 #-----------------------------------------------------------------------------
 
 %prep
 %autosetup -p1
 
-#if %{with fortran}
-#export CC=gcc
-#export CXX=g++
-#endif
-
+%build
 %cmake \
 	-DBUILD_STATIC_LIBS:BOOL=OFF \
-%if %{with fortran}
 	-DBUILD_FORTRAN77_INTERFACE:BOOL=OFF \
-	-DBUILD_FORTRAN_MODULE_INTERFACE:BOOL=ON \
-	-DFortran_INSTALL_MODDIR:PATH=%{fincludedir} \
-%endif
+	-DBUILD_FORTRAN_MODULE_INTERFACE:BOOL=%{?with_fortran:ON}%{!?with_fortran:OFF} \
+	-DFortran_INSTALL_MODDIR:PATH=%{_includedir} \
 	-DENABLE_MPI:BOOL=OFF \
 	-DENABLE_OPENMP:BOOL=ON \
 	-DENABLE_PTHREAD:BOOL=%{?with_pthread:ON}%{!?with_pthread:OFF} \
@@ -130,8 +118,7 @@ This package contains development files for %{name}.
 	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
 	-DEXAMPLES_INSTALL_PATH:PATH=%{_datadir}/%{name}/examples \
 	-G Ninja
-
-%build
+cd ..
 %ninja_build -C build
 
 %install
