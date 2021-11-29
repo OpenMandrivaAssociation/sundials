@@ -2,14 +2,16 @@
 %define	libname		%mklibname %{name} %{major}
 %define	develname	%mklibname %{name} -d
 
-%bcond_with		cuda
+%bcond_with	cuda
 %bcond_with	fortran
-%bcond_without	lapack
+%bcond_with	lapack
+%bcond_without	atlas
 %bcond_without	pthread
 
 %if %{with pthread}
 %define _disable_ld_no_undefined 1
 %endif
+
 
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
@@ -26,6 +28,9 @@ BuildRequires:	gcc-gfortran
 %if %{with lapack}
 BuildRequires:	blas-devel
 BuildRequires:	lapack-devel
+%endif
+%if %{with atlas}
+BuildRequires:	libatlas-devel
 %endif
 BuildRequires:	libgomp-devel
 BuildRequires:	openmpi-devel
@@ -49,7 +54,7 @@ Solvers. It consists of the following six solvers:
          capabilities (forward and adjoint); 
   - KINSOL solves nonlinear algebraic systems.
 
-#-----------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 %package -n %{libname}
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
@@ -73,7 +78,7 @@ Solvers. It consists of the following six solvers:
 %files -n %{libname}
 %{_libdir}/*.so.*
 
-#-----------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 %package -n %{develname}
 Summary:	Development files for the SUNDIALS libraries
@@ -97,7 +102,7 @@ This package contains development files for %{name}.
 %{_libdir}/cmake/%{name}/*.cmake
 %{_datadir}/%{name}/examples
 
-#-----------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 %prep
 %autosetup -p1
@@ -112,7 +117,13 @@ This package contains development files for %{name}.
 	-DENABLE_OPENMP:BOOL=ON \
 	-DENABLE_PTHREAD:BOOL=%{?with_pthread:ON}%{!?with_pthread:OFF} \
 	-DENABLE_CUDA:BOOL=%{?with_cuda:ON}%{!?with_cuda:OFF} \
+%if %{with lapack}
 	-DENABLE_LAPACK:BOOL=%{?with_lapack:ON}%{!?with_lapack:OFF} \
+%endif
+%if %{with atlas}
+	-DENABLE_LAPACK:BOOL=%{?with_atlas:ON}%{!?with_atlas:OFF} \
+	-DLAPACK_LIBRARIES:STRING="-L%{_libdir}/atlas -ltatlas" \
+%endif
 	-DENABLE_KLU:BOOL=ON \
 	-DKLU_INCLUDE_DIR:PATH=%{_includedir}/suitesparse \
 	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
