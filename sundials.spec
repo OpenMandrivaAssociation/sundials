@@ -107,6 +107,11 @@ This package contains development files for %{name}.
 %prep
 %autosetup -p1
 
+# fix for lapack 3.10.0
+sed  -i -e "s|void dcopy_f77|int dcopy_f77|g" \
+	include/sundials/sundials_lapack.h \
+	cmake/tpl/SundialsLapack.cmake
+
 %build
 %cmake \
 	-DBUILD_STATIC_LIBS:BOOL=OFF \
