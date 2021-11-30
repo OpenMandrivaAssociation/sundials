@@ -5,7 +5,7 @@
 %bcond_with	cuda
 %bcond_with	fortran
 %bcond_with	lapack
-%bcond_without	atlas
+%bcond_with	atlas
 %bcond_without	pthread
 
 %if %{with pthread}
@@ -108,9 +108,9 @@ This package contains development files for %{name}.
 %autosetup -p1
 
 # fix for lapack 3.10.0
-sed  -i -e "s|void dcopy_f77|int dcopy_f77|g" \
-	include/sundials/sundials_lapack.h \
-	cmake/tpl/SundialsLapack.cmake
+#sed  -i -e "s|void dcopy_f77|int dcopy_f77|g" \
+#	include/sundials/sundials_lapack.h \
+#	cmake/tpl/SundialsLapack.cmake
 
 %build
 %cmake \
