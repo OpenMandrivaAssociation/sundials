@@ -3,19 +3,21 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with	cuda
-%bcond_with	fortran
-%bcond_with	lapack
-%bcond_with	atlas
+%bcond_without	fortran
+%bcond_without	lapack
+%bcond_without	atlas
 %bcond_without	pthread
 
 %if %{with pthread}
-%define _disable_ld_no_undefined 1
+#define _disable_ld_no_undefined 1
 %endif
 
+# Can't mix clang (C/C++) and gcc (fortran) when using LTO
+%global _disable_lto 1
 
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
-Version:	5.8.0
+Version:	6.0.0
 Release:	1
 License:	BSD
 Group:		Sciences/Computer science
@@ -23,7 +25,7 @@ URL:		https://computation.llnl.gov/projects/%{name}
 Source0:	https://github.com/LLNL/%{name}/releases/download/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:	cmake
-BuildRequires:	ninja
+#BuildRequires:	ninja
 BuildRequires:	gcc-gfortran
 %if %{with lapack}
 BuildRequires:	blas-devel
@@ -133,12 +135,12 @@ This package contains development files for %{name}.
 	-DKLU_INCLUDE_DIR:PATH=%{_includedir}/suitesparse \
 	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
 	-DEXAMPLES_INSTALL_PATH:PATH=%{_datadir}/%{name}/examples \
-	-G Ninja
+	-DEXAMPLES_ENABLE_CXX:BOOL=ON \
+	-DCMAKE_C_STANDARD=17
 cd ..
-%ninja_build -C build
+%make_build -C build
 
 %install
-%ninja_install -C build
+%make_install -C build
 
 rm %{buildroot}%{_includedir}/sundials/LICENSE
-
