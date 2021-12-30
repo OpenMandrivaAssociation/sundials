@@ -3,9 +3,9 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with	cuda
-%bcond_with	atlas
+%bcond_without	atlas
 %bcond_without	fortran
-%bcond_without	lapack
+%bcond_with	lapack
 %bcond_without	pthread
 
 # Can't mix clang (C/C++) and gcc (fortran) when using LTO
