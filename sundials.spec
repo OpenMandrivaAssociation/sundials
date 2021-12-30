@@ -127,11 +127,12 @@ This package contains development files for %{name}.
 	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
 	-DEXAMPLES_INSTALL_PATH:PATH=%{_datadir}/%{name}/examples \
 	-DEXAMPLES_ENABLE_CXX:BOOL=ON \
-	-DCMAKE_C_STANDARD=17
+	-DCMAKE_C_STANDARD=17 \
+	%{nil}
 cd ..
-%ninja_build -C build
+%make_build -C build
 
 %install
-%ninja_install -C build
+%make_install -C build
 
 rm %{buildroot}%{_includedir}/sundials/LICENSE
