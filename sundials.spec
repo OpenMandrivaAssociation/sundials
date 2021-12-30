@@ -3,14 +3,10 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with	cuda
+%bcond_with	atlas
 %bcond_without	fortran
 %bcond_without	lapack
-%bcond_without	atlas
 %bcond_without	pthread
-
-%if %{with pthread}
-#define _disable_ld_no_undefined 1
-%endif
 
 # Can't mix clang (C/C++) and gcc (fortran) when using LTO
 %global _disable_lto 1
@@ -18,21 +14,21 @@
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
 Version:	6.0.0
-Release:	1
+Release:	2
 License:	BSD
 Group:		Sciences/Computer science
 URL:		https://computation.llnl.gov/projects/%{name}
 Source0:	https://github.com/LLNL/%{name}/releases/download/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:	cmake
-#BuildRequires:	ninja
+BuildRequires:	ninja
 BuildRequires:	gcc-gfortran
+%if %{with atlas}
+BuildRequires:	libatlas-devel
+%endif
 %if %{with lapack}
 BuildRequires:	blas-devel
 BuildRequires:	lapack-devel
-%endif
-%if %{with atlas}
-BuildRequires:	libatlas-devel
 %endif
 BuildRequires:	libgomp-devel
 BuildRequires:	openmpi-devel
@@ -109,11 +105,6 @@ This package contains development files for %{name}.
 %prep
 %autosetup -p1
 
-# fix for lapack 3.10.0
-#sed  -i -e "s|void dcopy_f77|int dcopy_f77|g" \
-#	include/sundials/sundials_lapack.h \
-#	cmake/tpl/SundialsLapack.cmake
-
 %build
 %cmake \
 	-DBUILD_STATIC_LIBS:BOOL=OFF \
@@ -138,9 +129,9 @@ This package contains development files for %{name}.
 	-DEXAMPLES_ENABLE_CXX:BOOL=ON \
 	-DCMAKE_C_STANDARD=17
 cd ..
-%make_build -C build
+%ninja_build -C build
 
 %install
-%make_install -C build
+%ninja_install -C build
 
 rm %{buildroot}%{_includedir}/sundials/LICENSE
