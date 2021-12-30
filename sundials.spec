@@ -3,20 +3,22 @@
 %define	develname	%mklibname %{name} -d
 
 %bcond_with	cuda
-%bcond_with	fortran
-%bcond_with	lapack
 %bcond_without	atlas
+%bcond_without	fortran
+%bcond_with	lapack
 %bcond_without	pthread
 
 %if %{with pthread}
 %define _disable_ld_no_undefined 1
 %endif
 
+# Can't mix clang (C/C++) and gcc (fortran) when using LTO
+%global _disable_lto 1
 
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
 Version:	5.8.0
-Release:	1
+Release:	2
 License:	BSD
 Group:		Sciences/Computer science
 URL:		https://computation.llnl.gov/projects/%{name}
@@ -128,12 +130,11 @@ This package contains development files for %{name}.
 	-DKLU_INCLUDE_DIR:PATH=%{_includedir}/suitesparse \
 	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
 	-DEXAMPLES_INSTALL_PATH:PATH=%{_datadir}/%{name}/examples \
-	-G Ninja
+	%{nil}
 cd ..
-%ninja_build -C build
+%make_build -C build
 
 %install
-%ninja_install -C build
+%make_install -C build
 
 rm %{buildroot}%{_includedir}/sundials/LICENSE
-
