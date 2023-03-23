@@ -1,5 +1,6 @@
 %define	major 5
-%define	libname		%mklibname %{name} %{major}
+%define oldlibname	%mklibname %{name} 5
+%define	libname		%mklibname %{name}
 %define	develname	%mklibname %{name} -d
 
 %bcond_with	cuda
@@ -13,7 +14,7 @@
 
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
-Version:	6.2.0
+Version:	6.5.0
 Release:	1
 License:	BSD
 Group:		Sciences/Computer science
@@ -57,6 +58,7 @@ Solvers. It consists of the following six solvers:
 %package -n %{libname}
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Group:		System/Libraries
+%rename %oldlibname
 
 %description -n %{libname}
 SUNDIALS is a SUite of Nonlinear and DIfferential/ALgebraic equation
@@ -91,11 +93,21 @@ This package contains development files for %{name}.
 %files -n %{develname}
 %license LICENSE
 %doc README.md
-%{_includedir}/*/*.h
+%{_includedir}/arkode
+%{_includedir}/cvode
+%{_includedir}/cvodes
+%{_includedir}/ida
+%{_includedir}/idas
+%{_includedir}/kinsol
+%{_includedir}/nvector
+%{_includedir}/sundials
+%{_includedir}/sunlinsol
+%{_includedir}/sunmatrix
+%{_includedir}/sunmemory
+%{_includedir}/sunnonlinsol
 %if %{with fortran}
 %{_includedir}/*.mod
 %endif
-%{_includedir}/%{name}/NOTICE
 %{_libdir}/lib%{name}_*.so
 %{_libdir}/cmake/%{name}/*.cmake
 %{_datadir}/%{name}/examples
