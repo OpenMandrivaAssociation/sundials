@@ -9,6 +9,15 @@
 %bcond_with	lapack
 %bcond_without	pthread
 
+# The cmake files in this package have a load of optional dependencies
+# (with checks for them) on things we don't currently ship:
+# CALIPER
+# Ginkgo
+# Kokkos
+# KokkosKernels
+# RAJA
+%define __requires_exclude_from ^%{_libdir}/cmake
+
 # Can't mix clang (C/C++) and gcc (fortran) when using LTO
 %global _disable_lto 1
 
