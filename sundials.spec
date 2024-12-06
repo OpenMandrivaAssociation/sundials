@@ -1,13 +1,17 @@
+# For now -- since C code (built with clang) and
+# Fortran code (built with gfortran) are linked
+# together, LTO object files don't work
+%global _disable_lto 0
+
 %define	major 5
-%define oldlibname	%mklibname %{name} 5
 %define	libname		%mklibname %{name}
 %define	develname	%mklibname %{name} -d
+%define oldlibname	%mklibname %{name} 5
 
-%bcond_with	cuda
-%bcond_without	atlas
-%bcond_without	fortran
-%bcond_with	lapack
-%bcond_without	pthread
+%bcond cuda	0
+%bcond fortran	1
+%bcond lapack	1
+%bcond pthread	1
 
 # The cmake files in this package have a load of optional dependencies
 # (with checks for them) on things we don't currently ship:
@@ -18,12 +22,12 @@
 # RAJA
 %define __requires_exclude_from ^%{_libdir}/cmake
 
-# Can't mix clang (C/C++) and gcc (fortran) when using LTO
-%global _disable_lto 1
+# BLAS lib
+%global blaslib flexiblas
 
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
-Version:	6.6.2
+Version:	7.1.1
 Release:	1
 License:	BSD
 Group:		Sciences/Computer science
@@ -33,15 +37,9 @@ Source0:	https://github.com/LLNL/%{name}/releases/download/v%{version}/%{name}-%
 BuildRequires:	cmake
 BuildRequires:	ninja
 BuildRequires:	gcc-gfortran
-%if %{with atlas}
-BuildRequires:	libatlas-devel
-%endif
-%if %{with lapack}
-BuildRequires:	blas-devel
-BuildRequires:	lapack-devel
-%endif
-BuildRequires:	libgomp-devel
+BuildRequires:	gomp-devel
 BuildRequires:	openmpi-devel
+BuildRequires:	pkgconfig(%{blaslib})
 %ifarch %{ix86} x86_64
 BuildRequires:	quadmath-devel
 %endif
@@ -109,6 +107,7 @@ This package contains development files for %{name}.
 %{_includedir}/idas
 %{_includedir}/kinsol
 %{_includedir}/nvector
+%{_includedir}/sunadaptcontroller
 %{_includedir}/sundials
 %{_includedir}/sunlinsol
 %{_includedir}/sunmatrix
@@ -127,7 +126,9 @@ This package contains development files for %{name}.
 %autosetup -p1
 
 %build
-%cmake \
+export FC=gfortran
+
+%cmake -Wno-dev \
 	-DBUILD_STATIC_LIBS:BOOL=OFF \
 	-DBUILD_FORTRAN77_INTERFACE:BOOL=OFF \
 	-DBUILD_FORTRAN_MODULE_INTERFACE:BOOL=%{?with_fortran:ON}%{!?with_fortran:OFF} \
@@ -136,24 +137,18 @@ This package contains development files for %{name}.
 	-DENABLE_OPENMP:BOOL=ON \
 	-DENABLE_PTHREAD:BOOL=%{?with_pthread:ON}%{!?with_pthread:OFF} \
 	-DENABLE_CUDA:BOOL=%{?with_cuda:ON}%{!?with_cuda:OFF} \
-%if %{with lapack}
 	-DENABLE_LAPACK:BOOL=%{?with_lapack:ON}%{!?with_lapack:OFF} \
-%endif
-%if %{with atlas}
-	-DENABLE_LAPACK:BOOL=%{?with_atlas:ON}%{!?with_atlas:OFF} \
-	-DLAPACK_LIBRARIES:STRING="-L%{_libdir}/atlas -ltatlas" \
-%endif
 	-DENABLE_KLU:BOOL=ON \
 	-DKLU_INCLUDE_DIR:PATH=%{_includedir}/suitesparse \
 	-DKLU_LIBRARY_DIR:PATH=%{_libdir} \
 	-DEXAMPLES_INSTALL_PATH:PATH=%{_datadir}/%{name}/examples \
 	-DEXAMPLES_ENABLE_CXX:BOOL=ON \
 	-DCMAKE_C_STANDARD=17 \
-	%{nil}
-cd ..
-%make_build -C build
+	-GNinja
+%ninja_build
 
 %install
-%make_install -C build
+%ninja_install -C build
 
 rm %{buildroot}%{_includedir}/sundials/LICENSE
+
