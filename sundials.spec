@@ -27,7 +27,7 @@
 
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
-Version:	7.2.1
+Version:	7.3.0
 Release:	1
 License:	BSD
 Group:		Sciences/Computer science
@@ -109,6 +109,7 @@ This package contains development files for %{name}.
 %{_includedir}/nvector
 %{_includedir}/sunadaptcontroller
 %{_includedir}/sundials
+%{_includedir}/sunadjointcheckpointscheme
 %{_includedir}/sunlinsol
 %{_includedir}/sunmatrix
 %{_includedir}/sunmemory
