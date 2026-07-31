@@ -27,7 +27,7 @@
 
 Summary:	SUite of Nonlinear and DIfferential/ALgebraic Equation Solvers
 Name:		sundials
-Version:	7.3.0
+Version:	7.8.0
 Release:	1
 License:	BSD
 Group:		Sciences/Computer science
